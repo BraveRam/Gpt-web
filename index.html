@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT-like Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #1a202c; /* Dark background color from Tailwind CSS website */
+      color: #cbd5e0; /* Beauty color for text */
+      font-family: Arial, sans-serif;
+    }
+
+    #chat-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #4a5568; /* Tailwind gray-600 border color */
+      background-color: #2d3748; /* Tailwind gray-700 background color */
+      border-radius: 0.5rem; /* Tailwind rounded-md */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Tailwind shadow-md */
+    }
+
+    #chat-messages {
+      overflow-y: scroll;
+      border-bottom: 1px solid #4a5568; /* Tailwind gray-600 border color */
+      margin-bottom: 10px;
+    }
+
+    #message-input {
+      width: 70%;
+      padding: 5px;
+    }
+
+    button {
+      padding: 5px 10px;
+      background-color: #4a5568; /* Tailwind gray-600 button color */
+      border: 1px solid #4a5568; /* Tailwind gray-600 border color */
+    }
+  </style>
+</head>
+<body>
+  <button id="clear" class="bg-gray-900 text-white">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+         class="h-6 w-6">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5 5l15 15M5 19L19 5"></path>
+    </svg>
+  </button>
+  <div id="chat-container">
+    <div id="chat-messages"></div>
+    <input type="text" id="message-input" placeholder="Type your message..." class="bg-gray-900 text-white">
+    <button class="bg-gray-900 text-white" onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    const clear = document.querySelector("#clear");
+    const messageInput = document.getElementById('message-input');
+    const chatMessages = document.getElementById('chat-messages');
+    
+    function appendMessage(message, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `<strong>${sender}:</strong> <span style="white-space: pre-line; color: white; font-family: serif; padding: 4px;">${message}</span>`;
+    chatMessages.appendChild(messageDiv);
+    }
+    
+    clear.addEventListener("click",()=>{
+    chatMessages.innerHTML = null;
+    })
+    
+    function sendMessage() {
+    const message = messageInput.value;
+    if (message.trim() !== '') {
+    appendMessage(message, 'You');
+    ask(message);
+    messageInput.value = '';
+    }
+    }
+    
+    function ask(text) {
+    fetch('https://flask-api-chi-one.vercel.app/ask', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message: text }),
+    })
+    .then(response => response.json())
+    .then(data => {
+    appendMessage(data.message, 'ChatGPT'); 
+    })
+    .catch(error => {
+    console.error('Error sending message:', error);
+    });
+    }
+  </script>
+</body>
+</html>
+ 
