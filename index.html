@@ -61,7 +61,7 @@
     
     function appendMessage(message, sender) {
     const messageDiv = document.createElement('div');
-    const textColor = sender === 'You' ? 'lime' : 'white';
+    const textColor = sender === 'You' ? 'gray' : 'white';
     
     messageDiv.innerHTML = `<strong>${sender}:</strong> <span class="msg" style="white-space: pre-line; color: ${textColor}; font-family: serif; padding: 4px;">${message}</span>`;
     chatMessages.appendChild(messageDiv);
