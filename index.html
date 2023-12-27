@@ -6,96 +6,91 @@
   <title>ChatGPT-like Chat</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
-    body {
-      background-color: #1a202c;
-      color: #cbd5e0;
-      font-family: Arial, sans-serif;
-    }
-
-    #chat-container {
-      /*max-width: 400px;*/
-      /*margin: auto;*/
-      padding: 20px;
-      border: 1px solid #4a5568;
-      background-color: #1a202c;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-
-    #chat-messages {
-      border-bottom: 1px solid #4a5568;
-      margin-bottom: 10px;
-    }
-
-    #message-input {
-      width: 70%;
-      padding: 5px;
-    }
-
-    button {
-      padding: 5px 10px;
-      background-color: #4a5568;
-      border: 1px solid #4a5568;
-    }
-  </style>
 </head>
-<body>
-  <button id="clear" class="bg-gray-900 text-white">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-         class="h-6 w-6">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5 5l15 15M5 19L19 5"></path>
-    </svg>
-  </button>
-  <div id="chat-container">
-    <div id="chat-messages"></div>
-    <input type="text" id="message-input" placeholder="Type your message..." class="bg-gray-900 text-white">
-    <button class="bg-gray-900 text-white" onclick="sendMessage()">Send</button>
+<body class="bg-gray-800 text-white font-sans">
+  <div class="fixed top-0 left-0 w-full p-4 bg-gray-900 flex justify-between items-center z-10">
+    <div id="clear-container" class="flex items-center">
+      <button id="clear" class="bg-gray-900 text-white p-2 rounded-full focus:outline-none">
+        <i class="fas fa-broom text-lg"></i>
+        <span class="ml-2 text-lg">Clear</span>
+      </button>
+    </div>
+    <div id="comment-container" class="flex items-center">
+      <a href="https://t.me/Mt_projectz">
+        <span id="comment" class="bg-gray-900 text-white p-2 rounded-full focus:outline-none">
+          <i class="fab fa-telegram"></i>
+        </span>
+        <span class="ml-2 text-lg">Telegram</span>
+      </a>
+    </div>
+  </div>
+
+  <div id="welcome-container" class="text-center mt-20 bg-gray-800 rounded-md p-4">
+    <img src="https://i.postimg.cc/NjVkwQjY/logo.png" alt="Logo" class="mx-auto mb-4 rounded-md" style="max-width: 100px;">
+    <p class="text-lg">How can I help you?</p>
+  </div>
+
+  <div id="chat-container" class="max-w-md mx-auto my-8 p-8 bg-gray-800 rounded-md shadow-md relative z-1 top-7">
+    <div id="chat-messages" class="mb-4"></div>
+    <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex items-center bg-gray-900 p-2 rounded-md border border-gray-700">
+      <input type="text" id="message-input" placeholder="Ask me anything..." class="flex-grow bg-transparent text-white focus:outline-none">
+      <button class="bg-gray-900 text-white p-2 rounded-md ml-2" onclick="sendMessage()">
+        <i class="fas fa-paper-plane text-lg"></i>
+      </button>
+    </div>
   </div>
 
   <script>
     const clear = document.querySelector("#clear");
+    const welcomeContainer = document.getElementById('welcome-container');
     const messageInput = document.getElementById('message-input');
     const chatMessages = document.getElementById('chat-messages');
-    
+
     function appendMessage(message, sender) {
-    const messageDiv = document.createElement('div');
-    const textColor = sender === 'You' ? 'gray' : 'white';
-    
-    messageDiv.innerHTML = `<strong>${sender}:</strong> <span class="msg" style="white-space: pre-line; color: ${textColor}; font-family: serif; padding: 4px;">${message}</span>`;
-    chatMessages.appendChild(messageDiv);
+      const messageDiv = document.createElement('div');
+      const icon = sender === 'You->' ? '<i class="fas fa-user text-xl rounded-full border border-white p-2"></i>' : '<i class="fas fa-robot text-xl rounded-full border border-white p-2"></i>';
+      const prefix = sender === 'You->' ? 'You->' : 'Bot->';
+      const textColor = sender === 'You->' ? 'orange' : 'white';
+
+      messageDiv.innerHTML = `<span>${icon}</span><span class="ml-2">${prefix}</span><span class="msg" style="white-space: pre-line; color: ${textColor}; font-family: serif; padding: 4px;">${message}</span>`;
+      chatMessages.appendChild(messageDiv);
     }
-    
-    clear.addEventListener("click",()=>{
-    chatMessages.innerHTML = null;
-    })
-    
-    function sendMessage() {
-    const message = messageInput.value;
-    if (message.trim() !== '') {
-    appendMessage(message, 'You');
-    ask(message);
-    messageInput.value = '';
-    }
-    }
-    
-    function ask(text) {
-    fetch('https://flask-api-chi-one.vercel.app/ask', {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message: text }),
-    })
-    .then(response => response.json())
-    .then(data => {
-    appendMessage(data.message, '<span style="color: orange;">ChatGPT</span>'); 
-    })
-    .catch(error => {
-    console.error('Error sending message:', error);
+
+    clear.addEventListener("click", () => {
+      chatMessages.innerHTML = null;
+      welcomeContainer.style.display = 'block';
     });
+
+    function sendMessage() {
+      const message = messageInput.value;
+      if (message.trim() !== '') {
+        appendMessage(message, 'You->');
+        ask(message);
+        messageInput.value = '';
+        welcomeContainer.style.display = 'none';
+      }
+    }
+
+    function ask(text) {
+      fetch('https://flask-api-chi-one.vercel.app/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        appendMessage(data.message, 'Bot->');
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+      });
     }
   </script>
 </body>
 </html>
+
+
+
+
